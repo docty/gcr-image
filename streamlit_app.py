@@ -49,7 +49,10 @@ if st.button('Generate 5 Images'):
     with torch.no_grad():
         generated_images = generator(z)
 
-    # Display each image separately
+    # Create columns to display images in a row
+    columns = st.columns(num_images)
+
+    # Display each image in a separate column
     for i in range(num_images):
         np_img = generated_images[i].cpu().numpy()
 
@@ -57,5 +60,5 @@ if st.button('Generate 5 Images'):
         np_img = (np_img + 1) / 2  # Rescale to [0, 1]
         np_img = np.transpose(np_img, (1, 2, 0))  # Change from CxHxW to HxWxC
 
-        # Display the individual image using st.image
-        st.image(np_img, caption=f'Generated Image {i+1}', use_column_width=True)
+        # Display the individual image using st.image in the corresponding column
+        columns[i].image(np_img, caption=f'Generated Image {i+1}', use_column_width=True)
