@@ -39,23 +39,23 @@ generator.to(device)
 
 # Streamlit UI elements
 st.title('Generative Model Image Generator')
-num_images = st.slider('Number of Images to Generate:', min_value=1, max_value=50, value=20)
+num_images = st.slider('Number of Images to Generate:', min_value=1, max_value=50, value=1)
 
-# Button to generate images
-if st.button('Generate Images'):
+# Button to generate image
+if st.button('Generate Image'):
     # Generate random latent vectors (noise)
     z = torch.randn(num_images, 100, 1, 1, device=device)
 
-    # Generate images from the noise vectors
+    # Generate image from the noise vectors
     with torch.no_grad():
         generated_images = generator(z)
 
-    # Convert the tensor to a grid and denormalize it
-    grid = make_grid(generated_images, nrow=5, normalize=True)
-    np_img = grid.cpu().numpy()
+    # Convert the tensor to NumPy and denormalize it
+    np_img = generated_images[0].cpu().numpy()  # Get the first image
 
-    # Display the generated images using Matplotlib
-    st.pyplot(plt.figure(figsize=(6, 6)))
-    plt.axis('off')
-    plt.imshow(np.transpose(np_img, (1, 2, 0)))
-    plt.show()
+    # Rescale the image from [-1, 1] to [0, 255] and transpose the dimensions to (H, W, C)
+    np_img = (np_img + 1) / 2  # Rescale to [0, 1]
+    np_img = np.transpose(np_img, (1, 2, 0))  # Change from CxHxW to HxWxC
+
+    # Display the single generated image
+    st.image(np_img, caption='Generated Image', use_column_width=True)
