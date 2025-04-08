@@ -58,4 +58,4 @@ if st.button('Generate Image'):
     np_img = np.transpose(np_img, (1, 2, 0))  # Change from CxHxW to HxWxC
 
     # Display the single generated image
-    st.image(np_img, caption='Generated Image', use_column_width=True)
+    st.image(np_img, caption='Generated Image', use_container_width=True)
