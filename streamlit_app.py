@@ -6,47 +6,36 @@ from torch import nn
 from torchvision.utils import save_image
 from io import BytesIO
 
-
-st.title("DCGAN")
-st.write(
-    "We are about to deploy a quick pytorch project"
-)
-
 # Load your DCGAN model (Generator)
+# Generator model
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
-        self.conv_blocks = nn.Sequential(
+        self.main = nn.Sequential(
             nn.ConvTranspose2d(100, 512, 4, 1, 0, bias=False),
             nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True),
-
+            nn.ReLU(True),
             nn.ConvTranspose2d(512, 256, 4, 2, 1, bias=False),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-
+            nn.ReLU(True),
             nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-
+            nn.ReLU(True),
             nn.ConvTranspose2d(128, 64, 4, 2, 1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-
+            nn.ReLU(True),
             nn.ConvTranspose2d(64, 3, 4, 2, 1, bias=False),
             nn.Tanh()
         )
 
-    def forward(self, z):
-        img = self.conv_blocks(z)
-        return img
+    def forward(self, x):
+        return self.main(x)
 
 # Load the trained generator model (weights should be saved)
 def load_generator():
     generator = Generator()
-    # Assuming the model weights have been saved as 'generator.pth'
-    generator.load_state_dict(torch.load("generator.pth"))
-    generator.eval()
+    generator.load_state_dict(torch.load(generator_checkpoint_path, weights_only=True, map_location=torch.device('cpu')))
+    generator.eval()  # Set the model to evaluation mode
     return generator
 
 # Generate image function
