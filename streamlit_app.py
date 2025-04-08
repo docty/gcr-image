@@ -37,7 +37,7 @@ generator.eval()  # Set the model to evaluation mode
 generator.to(device)
 
 # Streamlit UI elements
-st.title('Generative Model Image Generator')
+st.title('GAN')
 num_images = 5  # Display exactly 5 images
 
 # Button to generate images
