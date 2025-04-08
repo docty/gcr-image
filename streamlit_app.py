@@ -4,7 +4,7 @@ import numpy as np
 import torch.nn as nn
 import streamlit as st
 
-
+from engine import Generator
 
 # Load model and define the device
 generator_checkpoint_path = "generator.pth"  # Replace with the correct checkpoint file path
