@@ -61,4 +61,4 @@ if st.button('Generate 5 Images'):
         np_img = np.transpose(np_img, (1, 2, 0))  # Change from CxHxW to HxWxC
 
         # Display the individual image using st.image in the corresponding column
-        columns[i].image(np_img, caption=f'Generated Image {i+1}', use_column_width=True)
+        columns[i].image(np_img, caption=f'Generated Image {i+1}', use_container_width=True)
