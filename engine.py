@@ -1,3 +1,9 @@
+import torch
+import matplotlib.pyplot as plt
+import numpy as np
+import torch.nn as nn
+import streamlit as st
+
 
 # Generator model
 class Generator(nn.Module):
