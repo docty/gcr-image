@@ -1,12 +1,10 @@
-import streamlit as st 
 import torch
-import numpy as np
 import matplotlib.pyplot as plt
-from torch import nn
-from torchvision.utils import save_image
-from io import BytesIO
+from torchvision.utils import make_grid
+import numpy as np
+import torch.nn as nn
+import streamlit as st
 
-# Load your DCGAN model (Generator)
 # Generator model
 class Generator(nn.Module):
     def __init__(self):
@@ -31,50 +29,33 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.main(x)
 
-# Load the trained generator model (weights should be saved)
-def load_generator():
-    generator = Generator()
-    generator.load_state_dict(torch.load(generator_checkpoint_path, weights_only=True, map_location=torch.device('cpu')))
-    generator.eval()  # Set the model to evaluation mode
-    return generator
+# Load model and define the device
+generator_checkpoint_path = "generator.pth"  # Replace with the correct checkpoint file path
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+generator = Generator()
+generator.load_state_dict(torch.load(generator_checkpoint_path, weights_only=True, map_location=device))
+generator.eval()  # Set the model to evaluation mode
+generator.to(device)
 
-# Generate image function
-def generate_image(generator):
-    # Generate random noise as input to the generator
-    z = torch.randn(1, 100, 1, 1)  # Batch size = 1, Latent vector size = 100
+# Streamlit UI elements
+st.title('Generative Model Image Generator')
+num_images = st.slider('Number of Images to Generate:', min_value=1, max_value=50, value=20)
+
+# Button to generate images
+if st.button('Generate Images'):
+    # Generate random latent vectors (noise)
+    z = torch.randn(num_images, 100, 1, 1, device=device)
+
+    # Generate images from the noise vectors
     with torch.no_grad():
-        gen_img = generator(z).detach().cpu()
-    
-    # Convert the image to a format that can be displayed in Streamlit
-    gen_img = gen_img.squeeze().permute(1, 2, 0).numpy()
-    gen_img = (gen_img + 1) / 2  # Denormalize to [0, 1]
-    
-    # Display the image
-    fig, ax = plt.subplots()
-    ax.imshow(gen_img)
-    ax.axis('off')
-    
-    # Convert the Matplotlib figure to an image in memory
-    buf = BytesIO()
-    plt.savefig(buf, format="png")
-    buf.seek(0)
-    return buf
+        generated_images = generator(z)
 
-# Streamlit App UI
-def main():
-    # Streamlit App title
-    st.title("DCGAN Plant Image Generator")
-    
-    # Load the model
-    generator = load_generator()
-    
-    # Add a button to generate images
-    if st.button("Generate Plant Image"):
-        image_buffer = generate_image(generator)
-        
-        # Display the generated image
-        st.image(image_buffer, caption="Generated Plant Image", use_column_width=True)
+    # Convert the tensor to a grid and denormalize it
+    grid = make_grid(generated_images, nrow=5, normalize=True)
+    np_img = grid.cpu().numpy()
 
-# Run the Streamlit app
-if __name__ == "__main__":
-    main()
+    # Display the generated images using Matplotlib
+    st.pyplot(plt.figure(figsize=(6, 6)))
+    plt.axis('off')
+    plt.imshow(np.transpose(np_img, (1, 2, 0)))
+    plt.show()
